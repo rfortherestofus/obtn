@@ -13,7 +13,9 @@
 obtn_save_plot <- function(obtn_year, measure, geography, plot_width, plot_height) {
 
   measure <- stringr::str_to_lower(measure) %>%
+    stringr::str_replace_all(",", "") %>%
     stringr::str_replace_all(" ", "-")
+
 
   geography <- stringr::str_to_lower(geography) %>%
     stringr::str_replace_all(" ", "-")

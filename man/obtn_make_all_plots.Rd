@@ -4,7 +4,7 @@
 \alias{obtn_make_all_plots}
 \title{Title}
 \usage{
-obtn_make_all_plots(obtn_year)
+obtn_make_all_plots(obtn_year = 2020)
 }
 \arguments{
 \item{obtn_year}{}

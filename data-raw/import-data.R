@@ -16,7 +16,6 @@ load_all()
 
 # SETTINGS ----------------------------------------------------------------
 
-
 # Turn off scientific notation
 
 options(scipen = 999)
@@ -72,6 +71,8 @@ dk_import_alice_data <- function(data_year) {
       level == "alice_hh" ~ "Below ALICE Threshold",
       level == "above_alice_hh" ~ "Above ALICE Threshold"
     )) %>%
+    mutate(level = factor(level, levels = c("Below Poverty Level", "Below ALICE Threshold", "Above ALICE Threshold"))) %>%
+    mutate(level = fct_rev(level)) %>%
     mutate(value = value / 100) %>%
     mutate(year = data_year) %>%
     drop_na(geography)
@@ -160,12 +161,15 @@ dk_import_employment_industries_data <- function(data_year) {
     gather("ranking", "industry", -geography) %>%
     select(-ranking) %>%
     filter(geography %in% obtn_oregon_counties) %>%
-    mutate(industry_exists = "Y") %>%
-    complete(geography, industry, fill = list(industry_exists = "N")) %>%
+    mutate(top_three_industry = "Y") %>%
+    complete(geography, industry, fill = list(top_three_industry = "N")) %>%
     mutate(year = data_year)
 }
 
-obtn_employment_industries <- map_df(obtn_years, dk_import_employment_industries_data)
+obtn_top_employment_industries <- map_df(obtn_years, dk_import_employment_industries_data)
+
+use_data(obtn_top_employment_industries,
+         overwrite = TRUE)
 
 
 # * Population Pyramid ----------------------------------------------------
@@ -441,9 +445,9 @@ dk_import_measure_data <- function(data_year) {
     mutate(tertile_numeric = ntile(value, 3)) %>%
     mutate(tertile_numeric = as.numeric(tertile_numeric)) %>%
     mutate(tertile_text = case_when(
-      tertile_numeric == 3 ~ " Top third ",
-      tertile_numeric == 2 ~ " Middle third ",
-      tertile_numeric == 1 ~ " Bottom third "
+      tertile_numeric == 3 ~ "Top third",
+      tertile_numeric == 2 ~ "Middle third",
+      tertile_numeric == 1 ~ "Bottom third"
     )) %>%
     ungroup() %>%
     # Add 2019 categories
@@ -468,11 +472,11 @@ dk_import_measure_data <- function(data_year) {
       measure == "Higher ed enrollment" & tertile_text == " ID " ~ " No college ",
       TRUE ~ tertile_text
     )) %>%
-    mutate(tertile_text = factor(tertile_text, levels = c(" Top third ",
-                                                          " Middle third ",
-                                                          " Bottom third ",
-                                                          " No college ",
-                                                          " ID ")))
+    mutate(tertile_text = factor(tertile_text, levels = c("Top third",
+                                                          "Middle third",
+                                                          "Bottom third",
+                                                          "No college",
+                                                          "ID")))
 
 }
 

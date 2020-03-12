@@ -3,7 +3,7 @@ Type: Package
 Title: Oregon by the Numbers
 Version: 0.1.0
 Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
+Maintainer: David Keyes <david@rfortherestofus.com>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: MIT + file LICENSE
@@ -20,6 +20,7 @@ Imports:
     purrr,
     forcats,
     stringr,
-    fs
+    fs,
+    ggtext
 URL: https://github.com/rfortherestofus/obtn
 BugReports: https://github.com/rfortherestofus/obtn/issues

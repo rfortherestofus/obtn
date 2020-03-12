@@ -31,10 +31,10 @@ obtn_plot_choropleth_map <- function(obtn_year, measure_to_plot, plot_width = 4.
     ggplot2::theme_void() +
     ggplot2::theme(text = ggplot2::element_text(family = "Calibri",
                                                 size = 10),
-                   legend.box.margin = ggplot2::margin(10,10,10,10)) +
+                   legend.box.margin = ggplot2::margin(10,10,10,10),
+                   legend.position = "bottom") +
     ggplot2::scale_x_continuous(expand = c(0, 0)) +
     ggplot2::scale_y_continuous(expand = c(0, 0)) +
-    ggplot2::theme(legend.position = "bottom") +
     ggplot2::labs(fill = NULL)
 
   measure_to_plot_name <- stringr::str_glue("Choropleth {measure_to_plot}")
