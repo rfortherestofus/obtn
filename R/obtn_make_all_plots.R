@@ -11,13 +11,15 @@ obtn_make_all_plots <- function(obtn_year = 2020) {
 
   # Delete existing plots ---------------------------------------------------
 
-
   # Get list of all plots
   existing_plots <- fs::dir_ls(stringr::str_glue("inst/plots/{obtn_year}/"))
 
   # Delete them all
   fs::file_delete(existing_plots)
 
+
+  # ALICE -------------------------------------------------------------------
+  purrr::pwalk(list(obtn_year, obtn_oregon_counties), obtn_plot_alice)
 
   # Median Income Bar Charts ------------------------------------------------
   purrr::pwalk(list(obtn_year, obtn_oregon_counties), obtn_plot_median_income)
@@ -51,6 +53,9 @@ obtn_make_all_plots <- function(obtn_year = 2020) {
 
   # Make all top industry maps
   purrr::pwalk(list(obtn_year, obtn_industries), obtn_plot_top_employment_industries)
+
+
+
 
 
 

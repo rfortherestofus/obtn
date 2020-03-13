@@ -34,8 +34,6 @@ obtn_plot_top_employment_industries <- function(obtn_year, industry_to_plot, plo
 
   industry_to_plot_name <- stringr::str_glue("Top Employment Industry {industry_to_plot}")
 
-  print(industry_to_plot_name)
-
   obtn_save_plot(2020, industry_to_plot_name, "Oregon", plot_width, plot_height)
 
 }
