@@ -18,6 +18,12 @@ obtn_make_all_plots <- function(obtn_year = 2020) {
   fs::file_delete(existing_plots)
 
 
+  # State/Rural/Urban Population Pyramids -----------------------------------
+  purrr::pwalk(list(obtn_year, obtn_oregon_counties), obtn_plot_population_pyramid)
+
+  # County-Level Population Pyramids ----------------------------------------
+  purrr::pwalk(list(obtn_year, c("Oregon", "Rural", "Urban"), 3, 4), obtn_plot_population_pyramid)
+
   # ALICE -------------------------------------------------------------------
   purrr::pwalk(list(obtn_year, obtn_oregon_counties), obtn_plot_alice)
 
@@ -27,6 +33,7 @@ obtn_make_all_plots <- function(obtn_year = 2020) {
 
   # County-Level Race/Ethnicity Bar Charts ----------------------------------
   purrr::pwalk(list(obtn_year, obtn_oregon_counties), obtn_plot_race_ethnicity_bar_chart)
+
 
 
   # State/Rural/Urban Race/Ethnicity Bar Charts -----------------------------

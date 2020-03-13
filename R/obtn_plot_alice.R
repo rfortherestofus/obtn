@@ -1,5 +1,14 @@
-data(obtn_alice_data)
-
+#' Title
+#'
+#' @param obtn_year
+#' @param county_to_plot
+#' @param plot_width
+#' @param plot_height
+#'
+#' @return
+#' @export
+#'
+#' @examples
 obtn_plot_alice <- function(obtn_year, county_to_plot, plot_width = 3.1, plot_height = 0.3574) {
 
 obtn_alice_data_filtered <- obtn_alice_data %>%
