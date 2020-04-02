@@ -35,7 +35,7 @@ obtn_plot_race_ethnicity_bar_chart <- function(obtn_year, county_to_plot, plot_w
 
   ggplot2::ggplot(obtn_race_ethnicity_filtered,
                   ggplot2::aes(x = population, y = value)) +
-    ggplot2::geom_bar(stat = "identity", fill = tfff_dark_green) +
+    ggplot2::geom_bar(stat = "identity", fill = tfff_blue) +
     ggplot2::geom_text(data = dplyr::filter(obtn_race_ethnicity_filtered, population != "White"),
                        ggplot2::aes(population, value + .025,
                                     label = stringr::str_glue("{population}: {pct_formatted}")),

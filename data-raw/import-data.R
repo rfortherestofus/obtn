@@ -30,7 +30,6 @@ obtn_oregon_counties <- counties(state = "OR") %>%
   arrange(NAME) %>%
   pull(NAME)
 
-
 use_data(obtn_oregon_counties,
          overwrite = TRUE)
 
@@ -420,6 +419,13 @@ dk_import_measure_data <- function(data_year) {
                                     "Childcare Availability",
                                     "Mobile Homes")
 
+  other_measures <- c("Total Population",
+                      "Rural Population",
+                      "Net Migration",
+                      "Median Income",
+                      "Land Area",
+                      "Public Lands")
+
 
   # Create function to get one sheet of data
 
@@ -430,8 +436,10 @@ dk_import_measure_data <- function(data_year) {
       dplyr::select(county, numeric_only)
   }
 
-  map_df(sheets$sheet_name, dk_import_single_measure_data,
+  just_counties <- map_df(sheets$sheet_name, dk_import_single_measure_data,
          .id = "sheet_number") %>%
+    mutate(county = str_remove(county, "\\*")) %>%
+    filter(county %in% obtn_oregon_counties) %>%
     mutate(year = data_year) %>%
     mutate(sheet_number = as.numeric(sheet_number)) %>%
     left_join(sheets, by = "sheet_number") %>%
@@ -441,6 +449,23 @@ dk_import_measure_data <- function(data_year) {
     select(geography, measure, value, year) %>%
     mutate(geography = str_remove(geography, "\\*")) %>%
     mutate(geography = str_trim(geography)) %>%
+    # Add 2019 categories
+    mutate(category = case_when(
+      measure %in% social_measures_2019 & year == 2019 ~ "Social",
+      measure %in% education_measures_2019 & year == 2019 ~ "Education",
+      measure %in% economy_measures_2019 & year == 2019 ~ "Economy",
+      measure %in% health_measures_2019 & year == 2019 ~ "Health",
+      measure %in% infrastructure_measures_2019 & year == 2019 ~ "Infrastructure",
+      measure %in% community_measures_2020 & year == 2020 ~ "Community",
+      measure %in% education_measures_2020 & year == 2020 ~ "Education",
+      measure %in% economy_measures_2020 & year == 2020 ~ "Economy",
+      measure %in% health_measures_2020 & year == 2020 ~ "Health",
+      measure %in% infrastructure_measures_2020 & year == 2020 ~ "Infrastructure",
+      measure %in% other_measures & year == 2020 ~ "Other",
+    )) %>%
+    # If a measure doesn't have a category it's because we're not making a choropleth with it so drop it
+    drop_na(category) %>%
+    # Tertile stuff
     group_by(measure) %>%
     mutate(tertile_numeric = ntile(value, 3)) %>%
     mutate(tertile_numeric = as.numeric(tertile_numeric)) %>%
@@ -450,6 +475,26 @@ dk_import_measure_data <- function(data_year) {
       tertile_numeric == 1 ~ "Bottom third"
     )) %>%
     ungroup() %>%
+    # Add ID for all missing values
+    mutate(tertile_text = replace_na(tertile_text, "ID")) %>%
+    mutate(tertile_text = factor(tertile_text, levels = c("Top third",
+                                                          "Middle third",
+                                                          "Bottom third",
+                                                          "No college",
+                                                          "ID")))
+
+  not_counties <- map_df(sheets$sheet_name, dk_import_single_measure_data,
+                          .id = "sheet_number") %>%
+    filter(county %in% c("Rural Oregon", "Oregon", "Urban Oregon")) %>%
+    mutate(year = data_year) %>%
+    mutate(sheet_number = as.numeric(sheet_number)) %>%
+    left_join(sheets, by = "sheet_number") %>%
+    rename("value" = "numeric_only",
+           "measure" = "sheet_name",
+           "geography" = "county") %>%
+    select(geography, measure, value, year) %>%
+    mutate(geography = str_remove(geography, "\\*")) %>%
+    mutate(geography = str_trim(geography)) %>%
     # Add 2019 categories
     mutate(category = case_when(
       measure %in% social_measures_2019 & year == 2019 ~ "Social",
@@ -464,19 +509,9 @@ dk_import_measure_data <- function(data_year) {
       measure %in% infrastructure_measures_2020 & year == 2020 ~ "Infrastructure",
     )) %>%
     # If a measure doesn't have a category it's because we're not making a choropleth with it so drop it
-    drop_na(category) %>%
-    # Add ID for all missing values
-    mutate(tertile_text = replace_na(tertile_text, " ID ")) %>%
-    # Change ID to no college for higher ed enrollment
-    mutate(tertile_text = case_when(
-      measure == "Higher ed enrollment" & tertile_text == " ID " ~ " No college ",
-      TRUE ~ tertile_text
-    )) %>%
-    mutate(tertile_text = factor(tertile_text, levels = c("Top third",
-                                                          "Middle third",
-                                                          "Bottom third",
-                                                          "No college",
-                                                          "ID")))
+    drop_na(category)
+
+  bind_rows(just_counties, not_counties)
 
 }
 
@@ -506,6 +541,7 @@ dk_import_tribes_data <- function(data_year) {
                  values_to = "present") %>%
     drop_na(present) %>%
     mutate(present = "Y") %>%
+    # complete(geography, tribe, fill = list(present = "N")) %>%
     mutate(year = data_year)
 
 }
@@ -549,6 +585,7 @@ tfff_light_green <- "#B5CC8E"
 tfff_orange <- "#e65100"
 tfff_yellow <- "#FBC02D"
 tfff_blue <- "#283593"
+tfff_light_blue <- "#B3C0D6"
 tfff_red <- "#B71C1C"
 tfff_dark_gray <- "#545454"
 tfff_medium_gray <- "#a8a8a8"
@@ -567,6 +604,9 @@ use_data(tfff_yellow,
          overwrite = TRUE)
 
 use_data(tfff_blue,
+         overwrite = TRUE)
+
+use_data(tfff_light_blue,
          overwrite = TRUE)
 
 use_data(tfff_red,

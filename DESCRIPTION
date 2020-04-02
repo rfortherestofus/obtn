@@ -21,6 +21,9 @@ Imports:
     forcats,
     stringr,
     fs,
-    ggtext
+    ggtext,
+    tidyr
 URL: https://github.com/rfortherestofus/obtn
 BugReports: https://github.com/rfortherestofus/obtn/issues
+Depends: 
+    R (>= 2.10)

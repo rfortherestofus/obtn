@@ -8,7 +8,6 @@
 #' @examples
 obtn_make_all_plots <- function(obtn_year = 2020) {
 
-
   # Delete existing plots ---------------------------------------------------
 
   # Get list of all plots
@@ -17,15 +16,29 @@ obtn_make_all_plots <- function(obtn_year = 2020) {
   # Delete them all
   fs::file_delete(existing_plots)
 
+  # Tribes Maps -------------------------------------------------------------
+
+  # Create vector of tribes
+  obtn_tribes_vector <- obtn_tribes %>%
+    dplyr::filter(year == obtn_year) %>%
+    dplyr::distinct(tribe) %>%
+    dplyr::pull(tribe)
+
+  # Make all top industry maps
+  purrr::pwalk(list(obtn_year, obtn_tribes_vector), obtn_plot_tribes_map)
+
 
   # State/Rural/Urban Population Pyramids -----------------------------------
   purrr::pwalk(list(obtn_year, obtn_oregon_counties), obtn_plot_population_pyramid)
 
+
   # County-Level Population Pyramids ----------------------------------------
   purrr::pwalk(list(obtn_year, c("Oregon", "Rural", "Urban"), 3, 4), obtn_plot_population_pyramid)
 
+
   # ALICE -------------------------------------------------------------------
   purrr::pwalk(list(obtn_year, obtn_oregon_counties), obtn_plot_alice)
+
 
   # Median Income Bar Charts ------------------------------------------------
   purrr::pwalk(list(obtn_year, obtn_oregon_counties), obtn_plot_median_income)
@@ -35,9 +48,9 @@ obtn_make_all_plots <- function(obtn_year = 2020) {
   purrr::pwalk(list(obtn_year, obtn_oregon_counties), obtn_plot_race_ethnicity_bar_chart)
 
 
-
   # State/Rural/Urban Race/Ethnicity Bar Charts -----------------------------
   purrr::pwalk(list(obtn_year, c("Oregon", "Rural", "Urban"), 4.3684, 3.25), obtn_plot_race_ethnicity_bar_chart)
+
 
   # Choropleth Maps ---------------------------------------------------------
 
@@ -60,11 +73,6 @@ obtn_make_all_plots <- function(obtn_year = 2020) {
 
   # Make all top industry maps
   purrr::pwalk(list(obtn_year, obtn_industries), obtn_plot_top_employment_industries)
-
-
-
-
-
 
 }
 

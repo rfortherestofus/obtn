@@ -12,7 +12,7 @@ obtn_make_inset_map <- function(county) {
             color = "transparent") +
     ggplot2::geom_sf(data = dplyr::filter(obtn_boundaries_oregon_counties,
                           geography == county),
-            fill = tfff_light_green,
+            fill = tfff_blue,
             color = "white",
             size = 0.3) +
     ggplot2::coord_sf(datum = NA) +

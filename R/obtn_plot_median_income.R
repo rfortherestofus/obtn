@@ -44,7 +44,7 @@ obtn_plot_median_income <- function(obtn_year, county_to_plot, plot_width = 2.43
                        color = "white",
                        family = "Calibri") +
 
-    ggplot2::scale_fill_manual(values = c(tfff_medium_gray, tfff_dark_green)) +
+    ggplot2::scale_fill_manual(values = c(tfff_medium_gray, tfff_blue)) +
     ggplot2::scale_x_discrete(expand = c(0, 0)) +
     ggplot2::scale_y_continuous(expand = c(0, 0)) +
     ggplot2::coord_flip() +
