@@ -17,10 +17,10 @@ obtn_plot_choropleth_map <- function(obtn_year, measure_to_plot, plot_width = 4.
   obtn_data_by_measure_geospatial <- dplyr::left_join(obtn_data_by_measure_filtered, obtn_boundaries_oregon_counties, by = "geography") %>%
     sf::st_as_sf()
 
-  obtn_choropleth_colors <- rev(c("#dddddd",
-                                  "#B5CC8E",
-                                  "#6E8F68",
-                                  "#265142"))
+  # obtn_choropleth_colors <- rev(c("#dddddd",
+  #                                 "#B5CC8E",
+  #                                 "#6E8F68",
+  #                                 "#265142"))
 
   ggplot2::ggplot(obtn_data_by_measure_geospatial) +
     ggplot2::geom_sf(ggplot2::aes(fill = tertile_text),
@@ -39,7 +39,7 @@ obtn_plot_choropleth_map <- function(obtn_year, measure_to_plot, plot_width = 4.
 
   measure_to_plot_name <- stringr::str_glue("Choropleth {measure_to_plot}")
 
-  obtn_save_plot(2020, measure_to_plot_name, "Oregon", plot_width, plot_height)
+  obtn_save_plot(obtn_year, measure_to_plot_name, "Oregon", plot_width, plot_height)
 
 }
 

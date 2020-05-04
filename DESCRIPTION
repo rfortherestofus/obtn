@@ -22,7 +22,9 @@ Imports:
     stringr,
     fs,
     ggtext,
-    tidyr
+    tidyr,
+    patchwork,
+    ggalt
 URL: https://github.com/rfortherestofus/obtn
 BugReports: https://github.com/rfortherestofus/obtn/issues
 Depends: 

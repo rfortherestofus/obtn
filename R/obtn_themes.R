@@ -5,7 +5,7 @@
 #'
 #' @examples
 obtn_base_theme <- function() {
-  ggplot2::theme_minimal()
+  ggplot2::theme_minimal(base_family = "Calibri", ...)
     # theme(panel.grid.minor = element_blank(),
     #       panel.background = element_rect(fill = "transparent",colour = NA),
     #       plot.background = element_rect(fill = "transparent",colour = NA),

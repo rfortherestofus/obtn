@@ -49,7 +49,7 @@ obtn_plot_tribes_map <- function(obtn_year, tribe_to_plot, plot_width = 2, plot_
                      color = "white",
                      size = .35) +
     ggplot2::coord_sf(datum = NA) +
-    ggplot2::scale_fill_manual(values = c(tfff_light_gray, tfff_blue)) +
+    ggplot2::scale_fill_manual(values = c(tfff_light_gray, tfff_dark_green)) +
     ggplot2::theme_void() +
     ggplot2::theme(text = ggplot2::element_text(family = "Calibri",
                                                 size = 10),

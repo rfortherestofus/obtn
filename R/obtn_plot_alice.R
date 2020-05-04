@@ -26,7 +26,7 @@ ggplot2::ggplot(obtn_alice_data_filtered,
                      color = c("white", "black", tfff_light_gray),
                      fontface = "bold",
                      family = "Calibri") +
-  ggplot2::scale_fill_manual(values = c(tfff_light_gray, tfff_light_blue, tfff_blue)) +
+  ggplot2::scale_fill_manual(values = c(tfff_light_gray, tfff_light_green, tfff_dark_green)) +
   ggplot2::scale_x_discrete(expand = c(0, 0)) +
   ggplot2::scale_y_continuous(expand = c(0, 0)) +
   ggplot2::theme_void() +

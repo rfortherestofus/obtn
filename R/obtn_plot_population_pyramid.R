@@ -89,7 +89,7 @@ obtn_plot_population_pyramid <- function(obtn_year, county_to_plot, plot_width =
                         label = "Men",
                         color = "white",
                         family = "Calibri",
-                        fill = tfff_blue,
+                        fill = tfff_dark_green,
                         label.size = 0,
                         label.r = ggplot2::unit(0, "lines"),
                         label.padding = ggplot2::unit(.3, "lines")) +
@@ -98,7 +98,7 @@ obtn_plot_population_pyramid <- function(obtn_year, county_to_plot, plot_width =
                         label = "Women",
                         color = tfff_dark_gray,
                         family = "Calibri",
-                        fill = tfff_light_blue,
+                        fill = tfff_light_green,
                         label.size = 0,
                         label.r = ggplot2::unit(0, "lines"),
                         label.padding = ggplot2::unit(.3, "lines")) +
@@ -109,7 +109,7 @@ obtn_plot_population_pyramid <- function(obtn_year, county_to_plot, plot_width =
                                 limits = c(population_pyramid_limit * -1,
                                            population_pyramid_limit),
                                 labels = population_pyramid_labels) +
-    ggplot2::scale_fill_manual(values = c(tfff_light_blue, tfff_blue)) +
+    ggplot2::scale_fill_manual(values = c(tfff_light_green, tfff_dark_green)) +
     ggplot2::theme_void(base_family = "Calibri",
                         base_size = 10) +
     ggplot2::theme(axis.text.x = ggplot2::element_text(color = tfff_dark_gray,

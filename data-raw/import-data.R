@@ -10,6 +10,7 @@ library(janitor)
 library(sf)
 library(scales)
 library(tigris)
+library(opencage)
 
 load_all()
 
@@ -85,6 +86,17 @@ obtn_alice_data <- dk_import_alice_data(2020)
 use_data(obtn_alice_data,
          overwrite = TRUE)
 
+# Thresholds
+
+obtn_alice_data_thresholds <- read_excel(here("data-raw", "alice-data.xlsx"),
+                                         sheet = "County") %>%
+  clean_names() %>%
+  select(us_county, average_annual_earnings, alice_threshold_hh_under_65) %>%
+  set_names("geography", "median_income", "alice_threshold")
+
+
+use_data(obtn_alice_data_thresholds,
+         overwrite = TRUE)
 
 # * Economic Mobility -------------------------------------------------------
 
@@ -144,7 +156,18 @@ dk_import_race_ethnicity_data <- function(data_year) {
     mutate(year = data_year)
 }
 
-obtn_race_ethnicity <- map_df(obtn_years, dk_import_race_ethnicity_data)
+obtn_race_ethnicity <- map_df(obtn_years, dk_import_race_ethnicity_data) %>%
+  group_by(population) %>%
+  mutate(tertile_numeric = ntile(value, 3)) %>%
+  mutate(tertile_numeric = as.numeric(tertile_numeric)) %>%
+  ungroup() %>%
+  mutate(tertile_text = case_when(
+    tertile_numeric == 3 ~ "Top third",
+    tertile_numeric == 2 ~ "Middle third",
+    tertile_numeric == 1 ~ "Bottom third"
+  )) %>%
+  mutate(tertile_text = fct_rev(tertile_text))
+
 
 use_data(obtn_race_ethnicity,
          overwrite = TRUE)
@@ -339,6 +362,23 @@ obtn_public_land <- map_df(obtn_years, dk_import_public_land_area_data)
 use_data(obtn_public_land,
          overwrite = TRUE)
 
+
+# * Largest Community -------------------------------------------------------
+
+dk_import_largest_community_data <- function(data_year) {
+  read_excel(here("data-raw", str_glue("{data_year}-obtn-by-county.xlsx")),
+             sheet = "Largest Community") %>%
+    clean_names() %>%
+    rename(community = largest_community) %>%
+    oc_forward_df(placename = str_glue("{community}, Oregon")) %>%
+    mutate(year = data_year)
+}
+
+obtn_largest_community <- map_df(obtn_years, dk_import_largest_community_data)
+
+use_data(obtn_largest_community,
+         overwrite = TRUE)
+
 # DATA BY MEASURE ---------------------------------------------------------
 
 # List available here https://docs.google.com/spreadsheets/d/1ScUMUtbFVwzbR2C9VbUr1JeAVDARz_8G6C71YgyAg9s/edit#gid=0
@@ -424,7 +464,9 @@ dk_import_measure_data <- function(data_year) {
                       "Net Migration",
                       "Median Income",
                       "Land Area",
-                      "Public Lands")
+                      "Public Lands",
+                      "Life Expectancy - Overall",
+                      "Above ALICE HH")
 
 
   # Create function to get one sheet of data
@@ -437,7 +479,7 @@ dk_import_measure_data <- function(data_year) {
   }
 
   just_counties <- map_df(sheets$sheet_name, dk_import_single_measure_data,
-         .id = "sheet_number") %>%
+                          .id = "sheet_number") %>%
     mutate(county = str_remove(county, "\\*")) %>%
     filter(county %in% obtn_oregon_counties) %>%
     mutate(year = data_year) %>%
@@ -484,7 +526,7 @@ dk_import_measure_data <- function(data_year) {
                                                           "ID")))
 
   not_counties <- map_df(sheets$sheet_name, dk_import_single_measure_data,
-                          .id = "sheet_number") %>%
+                         .id = "sheet_number") %>%
     filter(county %in% c("Rural Oregon", "Oregon", "Urban Oregon")) %>%
     mutate(year = data_year) %>%
     mutate(sheet_number = as.numeric(sheet_number)) %>%
@@ -621,10 +663,10 @@ use_data(tfff_medium_gray,
 use_data(tfff_light_gray,
          overwrite = TRUE)
 
-tfff_choropleth_colors <- rev(c("#dddddd",
+obtn_choropleth_colors <- rev(c("#dddddd",
                                 "#B5CC8E",
                                 "#6E8F68",
                                 "#265142"))
 
-use_data(tfff_choropleth_colors,
+use_data(obtn_choropleth_colors,
          overwrite = TRUE)

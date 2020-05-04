@@ -16,6 +16,11 @@ obtn_make_all_plots <- function(obtn_year = 2020) {
   # Delete them all
   fs::file_delete(existing_plots)
 
+
+  # Largest Community -------------------------------------------------------
+
+  obtn_plot_largest_community(2020)
+
   # Tribes Maps -------------------------------------------------------------
 
   # Create vector of tribes
@@ -62,6 +67,12 @@ obtn_make_all_plots <- function(obtn_year = 2020) {
   # Make all choropleth maps
   purrr::pwalk(list(obtn_year, obtn_data_choropleth_measures_to_plot), obtn_plot_choropleth_map)
 
+
+  # Race/Ethnicity Statewide Maps -------------------------------------------
+
+  obtn_plot_multiple_race_ethnicity_choropleth_maps()
+
+  obtn_save_plot(2020, "race-ethnicity", "oregon", 7.5, 10)
 
   # Top Employment Industries -----------------------------------------------
 
