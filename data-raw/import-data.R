@@ -88,12 +88,20 @@ use_data(obtn_alice_data,
 
 # Thresholds
 
-obtn_alice_data_thresholds <- read_excel(here("data-raw", "alice-data.xlsx"),
+
+median_household_income_2016 <- read_excel(here("data-raw", "2016 Median Household Income.xlsx")) %>%
+  clean_names() %>%
+  set_names("geography", "median_income") %>%
+  mutate(geography = str_remove(geography, " County, Oregon")) %>%
+  filter(geography %in% obtn_oregon_counties)
+
+
+obtn_alice_data_thresholds <- read_excel(here("data-raw", "alice-data-2016.xlsx"),
                                          sheet = "County") %>%
   clean_names() %>%
-  select(us_county, average_annual_earnings, alice_threshold_hh_under_65) %>%
-  set_names("geography", "median_income", "alice_threshold")
-
+  select(us_county, alice_threshold_hh_under_65) %>%
+  set_names("geography", "alice_threshold") %>%
+  left_join(median_household_income_2016, by = "geography")
 
 use_data(obtn_alice_data_thresholds,
          overwrite = TRUE)
