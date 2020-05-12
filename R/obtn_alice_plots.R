@@ -145,7 +145,11 @@
 #     # gap > 0 ~ 1.1,
 #     gap < 0 ~ gap / 40000
 #   )) %>%
-#   dplyr::mutate(label_placement_y = 1 + label_placement_y - 0.1)
+#   dplyr::mutate(label_placement_y = 1 + label_placement_y - 0.1) %>%
+#   dplyr::mutate(fpl_mhi_gap = median_income - fpl) %>%
+#   dplyr::mutate(fpl_mhi_gap = scales::dollar(fpl_mhi_gap)) %>%
+#   dplyr::mutate(fpl_alice_gap = alice_threshold - fpl) %>%
+#   dplyr::mutate(fpl_alice_gap = scales::dollar(fpl_alice_gap))
 #
 #
 #
@@ -249,6 +253,7 @@
 #
 # # Curves with Arrow -------------------------------------------------------
 #
+#
 # ggplot() +
 #   geom_hline(yintercept = 1,
 #              color = tfff_light_gray) +
@@ -269,13 +274,13 @@
 #              size = 1.5,
 #              color = tfff_light_green) +
 #   geom_segment(data = obtn_alice_data_thresholds_summary_v2,
-#              aes(x = alice_threshold,
-#                  xend = median_income,
-#                  y = 0.5,
-#                  yend = 0.5),
-#              arrow = arrow(type = "open",
-#                            length = unit(0.1, "inches")),
-#              color = tfff_dark_green) +
+#                aes(x = alice_threshold,
+#                    xend = median_income,
+#                    y = 0.5,
+#                    yend = 0.5),
+#                arrow = arrow(type = "open",
+#                              length = unit(0.1, "inches")),
+#                color = tfff_dark_green) +
 #   geom_point(data = obtn_alice_data_thresholds_summary_v2,
 #              aes(x = fpl,
 #                  y = 1),
@@ -357,34 +362,41 @@
 #                  xend = median_income,
 #                  y = 1,
 #                  yend = 1),
-#              curvature = -1,
-#              color = tfff_yellow) +
+#              curvature = 1,
+#              size = 1.5,
+#              color = tfff_light_blue) +
 #   geom_curve(data = obtn_alice_data_thresholds_summary_v2,
 #              aes(x = fpl,
 #                  xend = alice_threshold,
 #                  y = 1,
 #                  yend = 1),
-#              curvature = 1,
-#              color = tfff_light_green) +
-#   # geom_curve(data = obtn_alice_data_thresholds_summary_v2,
-#   #            aes(x = median_income,
-#   #                xend = alice_threshold,
-#   #                y = 1,
-#   #                yend = 1),
-#   #            curvature = 1,
-#   #            color = tfff_dark_green) +
+#              curvature = -1,
+#              size = 1.5,
+#              color = tfff_blue) +
 #   geom_point(data = obtn_alice_data_thresholds_summary_v2,
 #              aes(x = fpl,
 #                  y = 1),
-#              color = tfff_blue) +
+#              shape = 21,
+#              size = 3,
+#              stroke = 1.5,
+#              fill = "white",
+#              color = tfff_light_green) +
 #   geom_point(data = obtn_alice_data_thresholds_summary_v2,
 #              aes(x = median_income,
 #                  y = 1),
-#              color = tfff_yellow) +
+#              shape = 21,
+#              size = 3,
+#              stroke = 1.5,
+#              fill = "white",
+#              color = tfff_light_blue) +
 #   geom_point(data = obtn_alice_data_thresholds_summary_v2,
 #              aes(x = alice_threshold,
 #                  y = 1),
-#              color = tfff_light_green) +
+#              shape = 21,
+#              size = 3,
+#              stroke = 1.5,
+#              fill = "white",
+#              color = tfff_blue) +
 #   ggplot2::theme_minimal(base_size = 14,
 #                          base_family = "Calibri") +
 #   ggplot2::theme(
@@ -399,33 +411,43 @@
 #     legend.position = "none",
 #     strip.text = element_text(face = "bold"),
 #     panel.spacing = unit(2, "lines"),
-#     plot.title = ggtext::element_markdown(),
-#     plot.subtitle = ggtext::element_markdown()
+#     plot.title = ggtext::element_markdown(size = 20,
+#                                           face = "bold"),
+#     plot.subtitle = ggtext::element_markdown(size = 16,
+#                                              face = "bold")
 #   ) +
 #   ggplot2::scale_x_continuous(labels = scales::dollar_format(scale = 0.001,
 #                                                              suffix = "K"),
 #                               limits = c(22500, 75000),
 #                               breaks = seq(25000, 75000, by = 25000),
 #                               expand = expansion(add = c(0, 10000))) +
-#   ggplot2::scale_y_continuous(limits = c(-3,
-#                                          5.5)) +
+#   ggplot2::scale_y_continuous(limits = c(-5.5,
+#                                          6)) +
 #   facet_wrap(~geography,
 #              ncol = 4,
 #              scale = "free_x") +
-#   geom_text(data = filter(obtn_alice_data_thresholds_summary_v2, gap > 0),
-#             aes(x = median_income,
-#                 y = 1.5,
-#                 label = gap_label),
-#             hjust = -0.1,
-#             family = "Calibri") +
-#   geom_text(data = filter(obtn_alice_data_thresholds_summary_v2, gap < 0),
-#             aes(x = label_placement_x,
-#                 y = label_placement_y,
-#                 label = gap_label),
-#             vjust = 2.5,
-#             family = "Calibri")
-#
-#
+#   shadowtext::geom_shadowtext(data = obtn_alice_data_thresholds_summary_v2,
+#                               aes(x = median_income,
+#                                   y = -0.5,
+#                                   label = scales::dollar(median_income)),
+#                               hjust = -0.1,
+#                               family = "Calibri",
+#                               # fontface = "bold",
+#                               bg.color = "white",
+#                               # bg.r = 0.25,
+#                               color = tfff_light_blue) +
+#   shadowtext::geom_shadowtext(data = obtn_alice_data_thresholds_summary_v2,
+#                               aes(x = alice_threshold,
+#                                   y = 2.5,
+#                                   label = scales::dollar(alice_threshold)),
+#                               hjust = -0.1,
+#                               family = "Calibri",
+#                               # fontface = "bold",
+#                               bg.color = "white",
+#                               # bg.r = 0.25,
+#                               color = tfff_blue) +
+#   ggplot2::labs(title = "<span style = 'color: #545454'>The <span style = 'color: #283593'><b>ALICE Threshold</b></span> is above the <span style = 'color: #B3C0D6'><b>Median Household Income</b></span> in Most Oregon Counties</span>",
+#                 subtitle = "<span style = 'color: #545454'>And both are well above the <span style = 'color: #B5CC8E'><b>Federal Poverty Level of $24,300</b></span></span>")
 #
 #
 #
@@ -433,6 +455,11 @@
 #                 width = 12,
 #                 height = 24,
 #                 device = cairo_pdf)
+#
+#
+# ggplot2::ggsave("inst/plots/tests/alice-plot-curves-v2.png",
+#                 width = 12,
+#                 height = 24)
 #
 #
 #
@@ -461,13 +488,13 @@
 #   geom_curve(data = df,
 #              aes(x=xstart, y=ystart, xend=xend, yend=yend), curvature = -.5, color="purple")
 #
-#   geom_curve(data = obtn_alice_data_thresholds_summary_v2,
-#              aes(x = median_income,
-#                  xend = alice_threshold,
-#                  y = 1,
-#                  yend = 1),
-#              curvature = 1,
-#              color = tfff_dark_green) +
+# geom_curve(data = obtn_alice_data_thresholds_summary_v2,
+#            aes(x = median_income,
+#                xend = alice_threshold,
+#                y = 1,
+#                yend = 1),
+#            curvature = 1,
+#            color = tfff_dark_green) +
 #   geom_point(data = obtn_alice_data_thresholds_summary_v2,
 #              aes(x = fpl,
 #                  y = 1),
