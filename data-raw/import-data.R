@@ -99,8 +99,10 @@ median_household_income_2016 <- read_excel(here("data-raw", "2016 Median Househo
 obtn_alice_data_thresholds <- read_excel(here("data-raw", "alice-data-2016.xlsx"),
                                          sheet = "County") %>%
   clean_names() %>%
-  select(us_county, alice_threshold_hh_under_65) %>%
-  set_names("geography", "alice_threshold") %>%
+  select(us_county,
+         alice_threshold_hh_under_65,
+         alice_threshold_hh_65_years_and_over) %>%
+  rename("geography" = "us_county") %>%
   left_join(median_household_income_2016, by = "geography")
 
 use_data(obtn_alice_data_thresholds,

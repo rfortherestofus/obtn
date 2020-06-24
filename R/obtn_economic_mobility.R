@@ -1,8 +1,8 @@
 # obtn_plot_economic_mobility_map <- function() {
 #
-#   choropleth_colors_blues <- c(tfff_blue,
-#                                "#6E7BB5",
-#                                tfff_light_blue,
+#   choropleth_colors_blues <- c("#375678",
+#                                "#788CA7",
+#                                "#B2BCCB",
 #                                "dddddd")
 #
 #   obtn_economic_mobility_filtered <- obtn_economic_mobility %>%
@@ -38,11 +38,11 @@
 #     #                       size = ggplot_pts(10),
 #     #                       family = "Calibri",
 #     #                       show_guide = FALSE) +
-#     ggplot2::geom_sf_text(ggplot2::aes(label = scales::number((value * 100), 0.1),
-#                                        color = tertile_text),
-#                           size = ggplot_pts(10),
-#                           family = "Calibri",
-#                           show_guide = FALSE) +
+#     # ggplot2::geom_sf_text(ggplot2::aes(label = scales::number((value * 100), 0.1),
+#     #                                    color = tertile_text),
+#     #                       size = ggplot_pts(10),
+#     #                       family = "Calibri",
+#     #                       show_guide = FALSE) +
 #     ggplot2::coord_sf(datum = NA) +
 #     ggplot2::scale_fill_manual(values = choropleth_colors_blues) +
 #     ggplot2::scale_color_manual(values = c("white",
@@ -61,7 +61,7 @@
 #
 # obtn_plot_economic_mobility_map()
 #
-# ggplot2::ggsave(filename = "inst/plots/tests/economic-mobility-map-no-percent-sign.pdf",
+# ggplot2::ggsave(filename = "inst/plots/tests/economic-mobility-map-no-labels.pdf",
 #                 width = 7,
 #                 height = 7/1.34,
 #                 device = cairo_pdf)
