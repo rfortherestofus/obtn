@@ -63,6 +63,7 @@ dk_import_alice_data <- function(data_year) {
   read_excel(here("data-raw", str_glue("{data_year}-obtn-by-county.xlsx")),
              sheet = "ALICE") %>%
     clean_names() %>%
+    select(-c(alice_threshold_hh_under_65, alice_threshold_hh_65_years_and_over)) %>%
     mutate(geography = str_trim(geography)) %>%
     pivot_longer(-geography,
                  names_to = "level") %>%
@@ -82,28 +83,29 @@ dk_import_alice_data <- function(data_year) {
 obtn_alice_data <- dk_import_alice_data(2020)
 
 
-
 use_data(obtn_alice_data,
          overwrite = TRUE)
 
 # Thresholds
 
 
-median_household_income_2016 <- read_excel(here("data-raw", "2016 Median Household Income.xlsx")) %>%
-  clean_names() %>%
-  set_names("geography", "median_income") %>%
-  mutate(geography = str_remove(geography, " County, Oregon")) %>%
-  filter(geography %in% obtn_oregon_counties)
+median_household_income_oregon_2020 <- obtn_data_median_income %>%
+  filter(geography == "Oregon") %>%
+  filter(year == 2020) %>%
+  pull(value)
 
-
-obtn_alice_data_thresholds <- read_excel(here("data-raw", "alice-data-2016.xlsx"),
-                                         sheet = "County") %>%
+obtn_alice_data_thresholds <- read_excel(here("data-raw", str_glue("2020-obtn-by-county.xlsx")),
+                                         sheet = "ALICE") %>%
   clean_names() %>%
-  select(us_county,
-         alice_threshold_hh_under_65,
-         alice_threshold_hh_65_years_and_over) %>%
-  rename("geography" = "us_county") %>%
-  left_join(median_household_income_2016, by = "geography")
+  select(c(geography, alice_threshold_hh_under_65, alice_threshold_hh_65_years_and_over)) %>%
+  drop_na() %>%
+  pivot_longer(-geography,
+               names_to = "age") %>%
+  mutate(age = case_when(
+    age ==  "alice_threshold_hh_under_65" ~ "Under 65",
+    TRUE ~ "Over 65"
+  ))
+
 
 use_data(obtn_alice_data_thresholds,
          overwrite = TRUE)

@@ -11,55 +11,37 @@
 
 obtn_plot_single_race_ethnicity_choropleth_map <- function(obtn_year, population_to_filter, plot_width = 4.3684, plot_height = 3.25) {
 
+
+
+  state_avg <- obtn_race_ethnicity %>%
+    dplyr::filter(year == obtn_year) %>%
+    dplyr::filter(population == population_to_filter) %>%
+    dplyr::filter(geography == "Oregon") %>%
+    dplyr::pull(value)
+
   obtn_race_ethnicity_filtered <- obtn_race_ethnicity %>%
     dplyr::filter(year == obtn_year) %>%
-    dplyr::filter(geography %in% obtn_oregon_counties)
+    dplyr::filter(population == population_to_filter) %>%
+    dplyr::filter(geography %in% obtn_oregon_counties) %>%
+    dplyr::mutate(above_state_avg = dplyr::case_when(
+      value > state_avg ~ "Y",
+      TRUE ~ "N"
+    ))
 
-  obtn_race_ethnicity_range_top <- obtn_race_ethnicity_filtered %>%
-    dplyr::group_by(population, tertile_text) %>%
-    dplyr::slice_max(value, 1,
-                     with_ties = FALSE) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(range_label = "max")
+  obtn_race_ethnicity_geospatial <- dplyr::left_join(obtn_race_ethnicity_filtered,
+                                                     obtn_boundaries_oregon_counties,
+                                                     by = "geography") %>%
+    sf::st_as_sf()
 
-  obtn_race_ethnicity_range_bottom <- obtn_race_ethnicity_filtered %>%
-    dplyr::group_by(population, tertile_text) %>%
-    dplyr::slice_min(value, 1,
-                     with_ties = FALSE) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(range_label = "min")
-
-  obtn_race_ethnicity_ranges <- dplyr::bind_rows(obtn_race_ethnicity_range_bottom,
-                                                 obtn_race_ethnicity_range_top) %>%
-    dplyr::select(population, value, tertile_text, tertile_numeric, range_label) %>%
-    dplyr::arrange(population, value) %>%
-    dplyr::mutate(value = scales::percent(value, accuracy = 0.1)) %>%
-    tidyr::pivot_wider(id_cols = c(population, tertile_text, tertile_numeric),
-                       names_from = range_label,
-                       values_from = value) %>%
-    dplyr::mutate(tertile_label = stringr::str_glue("{tertile_text}\n{min}-{max}")) %>%
-    dplyr::select(population, tertile_text, tertile_numeric, tertile_label) %>%
-    dplyr::mutate(tertile_label = forcats::fct_reorder(tertile_label, tertile_numeric)) %>%
-    dplyr::mutate(tertile_label = forcats::fct_rev(tertile_label))
-
-
-  dplyr::left_join(obtn_race_ethnicity_filtered, obtn_race_ethnicity_ranges)
-
-  obtn_race_ethnicity_geospatial <- dplyr::left_join(obtn_race_ethnicity_filtered, obtn_boundaries_oregon_counties, by = "geography") %>%
-    sf::st_as_sf() %>%
-    dplyr::left_join(obtn_race_ethnicity_ranges, by = c("population", "tertile_numeric", "tertile_text")) %>%
-    dplyr::select(geography, population, tertile_label)
-
-  obtn_race_ethnicity_geospatial_filtered <- obtn_race_ethnicity_geospatial %>%
-    dplyr::filter(population == population_to_filter)
-
-
-  ggplot2::ggplot(obtn_race_ethnicity_geospatial_filtered) +
-    ggplot2::geom_sf(ggplot2::aes(fill = tertile_label),
+  ggplot2::ggplot(obtn_race_ethnicity_geospatial) +
+    ggplot2::geom_sf(ggplot2::aes(fill = above_state_avg),
                      color = "white",
                      size = .5) +
     ggplot2::coord_sf(datum = NA) +
-    ggplot2::scale_fill_manual(values = obtn_choropleth_colors) +
+    ggplot2::scale_fill_manual(values = c(
+      "Y" = tfff_dark_green,
+      "N" = tfff_light_green
+    )) +
     ggplot2::theme_void() +
     ggplot2::theme(text = ggplot2::element_text(family = "Calibri",
                                                 size = 10),
@@ -67,7 +49,7 @@ obtn_plot_single_race_ethnicity_choropleth_map <- function(obtn_year, population
                                                       hjust = 0.5,
                                                       size = 12),
                    legend.box.margin = ggplot2::margin(10,10,10,10),
-                   legend.position = "bottom") +
+                   legend.position = "none") +
     ggplot2::labs(fill = NULL,
                   title = population_to_filter)
 
@@ -103,4 +85,8 @@ obtn_plot_multiple_race_ethnicity_choropleth_maps <- function() {
 }
 
 
+# ggsave(filename = "inst/plots/tests/race-ethnicity-above-state-avg.pdf",
+#        device = cairo_pdf,
+#        height = 8.5,
+#        width = 11)
 
