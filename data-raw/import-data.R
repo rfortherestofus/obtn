@@ -106,7 +106,6 @@ obtn_alice_data_thresholds <- read_excel(here("data-raw", str_glue("2020-obtn-by
     TRUE ~ "Over 65"
   ))
 
-
 use_data(obtn_alice_data_thresholds,
          overwrite = TRUE)
 
