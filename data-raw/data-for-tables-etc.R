@@ -81,11 +81,11 @@ community_measures_2020 <- c("Food Insecurity",
                              "Index Crime",
                              "Voter Participation")
 
-education_measures_2020 <- c("4yr Degree or Greater",
-                             "Graduation Rate",
-                             "9th Grade on Track",
+education_measures_2020 <- c("Letter Sounds",
                              "3rd Grade ELA",
-                             "Letter Sounds")
+                             "9th Grade on Track",
+                             "Graduation Rate",
+                             "4yr Degree or Greater")
 
 economy_measures_2020 <- c("Unemployment Rate",
                            "LFPR",
@@ -93,18 +93,18 @@ economy_measures_2020 <- c("Unemployment Rate",
                            "Property Tax per Person",
                            "Rent Costs")
 
-health_measures_2020 <- c("Good Physical Health",
-                          "Good Mental Health",
-                          "Tobacco Use",
+health_measures_2020 <- c("Low Weight Births",
                           "Vaccination Rate 2yr olds",
-                          "Low Weight Births")
+                          "Good Physical Health",
+                          "Good Mental Health",
+                          "Tobacco Use")
 
 
 infrastructure_measures_2020 <- c("Broadband Access",
+                                  "Childcare Availability",
                                   "Transit Service",
-                                  "Vehicle Miles Traveled",
                                   "Mobile Homes",
-                                  "Childcare Availability")
+                                  "VMT per capita")
 
 measures <- c(community_measures_2020,
               education_measures_2020,
@@ -143,36 +143,118 @@ table_data <- obtn_data_by_measure %>%
                    "Index Crime",
                    "Letter Sounds",
                    "Job Growth",
-                   "Vehicle Miles Traveled",
+                   "VMT per capita",
                    "Childcare Availability") ~ comma(value),
     measure %in% c("Property Tax per Person",
-                  "Rent Costs") ~ dollar(value, 1)
+                   "Rent Costs") ~ dollar(value, 1)
   )) %>%
   select(geography:value) %>%
+  drop_na(measure) %>%
   view()
 
-health_measures_not_counties <- table_data %>%
-  filter(measure %in% health_measures_2020) %>%
-  filter(geography %in% c("Oregon", "Rural Oregon", "Urban Oregon")) %>%
+# health_measures_not_counties <- table_data %>%
+#   filter(measure %in% health_measures_2020) %>%
+#   filter(geography %in% c("Oregon", "Rural Oregon", "Urban Oregon")) %>%
+#   pivot_wider(id_cols = measure,
+#               names_from = geography,
+#               values_from = value)
+#
+# table_data %>%
+#   filter(measure %in% health_measures_2020) %>%
+#   filter(geography %in% obtn_oregon_counties) %>%
+#   left_join(health_measures_not_counties, by = "measure") %>%
+#   write_xlsx(here("data-raw", "table-data", "table-data-health-measures.xlsx"))
+
+
+table_data_not_counties <- table_data %>%
+  filter(geography %in% c("Rural Oregon", "Oregon", "Urban Oregon")) %>%
   pivot_wider(id_cols = measure,
               names_from = geography,
               values_from = value)
 
 table_data %>%
-  filter(measure %in% health_measures_2020) %>%
   filter(geography %in% obtn_oregon_counties) %>%
-  left_join(health_measures_not_counties, by = "measure") %>%
-  write_xlsx(here("data-raw", "table-data", "table-data-health-measures.xlsx"))
-
-
-table_data %>%
-  filter(geography %in% c("Rural Oregon", "Oregon", "Urban Oregon")) %>%
-  write_xlsx(here("data-raw", "table-data", "table-data-not-counties.xlsx"))
-
-table_data %>%
-  filter(geography %in% obtn_oregon_counties) %>%
+  left_join(table_data_not_counties) %>%
+  rename(County = value) %>%
+  mutate(measure = case_when(
+    measure == "Child Poverty" ~ "Child poverty*",
+    measure == "Foster Care" ~ "Foster care rate (per 1,000 pop.)",
+    measure == "Index Crime" ~ "Index crime (per 1,000 pop.)",
+    measure == "Letter Sounds" ~ "Kindergarten readiness",
+    measure == "3rd Grade ELA" ~ "3rd grade reading",
+    measure == "Graduation Rate" ~ "5-year high school graduation rate",
+    measure == "4yr Degree or Greater" ~ "4-year degree or greater",
+    measure == "LFPR" ~ "Labor force participation rate",
+    measure == "Job Growth" ~ "Job growth (per 1,000 pop.)",
+    measure == "Property Tax per Person" ~ "Property tax (per person)",
+    measure == "Rent Costs" ~ "Rent costs (1 bedroom/1 bath)",
+    measure == "Vaccination Rate 2yr olds" ~ "Vaccination rate, 2 year olds",
+    measure == "Childcare Availability" ~ "Child care (slots per 100 children)",
+    measure == "Letter Sounds" ~ "Kidergarten ready (Letter sound)",
+    measure == "VMT per capita" ~ "Vehicle Miles Traveled (per capita)",
+    TRUE ~ str_to_sentence(measure)
+  )) %>%
+  # view()
   write_xlsx(here("data-raw", "table-data", "table-data-counties.xlsx"))
 
+
+# Infrastructure Measures - Updated Order ---------------------------------
+
+table_data %>%
+  filter(geography %in% obtn_oregon_counties) %>%
+  left_join(table_data_not_counties) %>%
+  rename(County = value) %>%
+  filter(measure %in% infrastructure_measures_2020) %>%
+  mutate(measure = case_when(
+    measure == "Child Poverty" ~ "Child poverty*",
+    measure == "Foster Care" ~ "Foster care rate (per 1,000 pop.)",
+    measure == "Index Crime" ~ "Index crime (per 1,000 pop.)",
+    measure == "Letter Sounds" ~ "Kindergarten readiness",
+    measure == "3rd Grade ELA" ~ "3rd grade reading",
+    measure == "Graduation Rate" ~ "5-year high school graduation rate",
+    measure == "4yr Degree or Greater" ~ "4-year degree or greater",
+    measure == "LFPR" ~ "Labor force participation rate",
+    measure == "Job Growth" ~ "Job growth (per 1,000 pop.)",
+    measure == "Property Tax per Person" ~ "Property tax (per person)",
+    measure == "Rent Costs" ~ "Rent costs (1 bedroom/1 bath)",
+    measure == "Vaccination Rate 2yr olds" ~ "Vaccination rate, 2 year olds",
+    measure == "Childcare Availability" ~ "Child care (slots per 100 children)",
+    measure == "Letter Sounds" ~ "Kidergarten ready (Letter sound)",
+    measure == "VMT per capita" ~ "Vehicle Miles Traveled (per capita)",
+    TRUE ~ str_to_sentence(measure)
+  )) %>%
+  view()
+  write_xlsx(here("data-raw", "table-data", "table-data-infrastructure.xlsx"))
+
+
+# Vehicle Miles Traveled --------------------------------------------------
+
+table_data %>%
+  filter(geography %in% obtn_oregon_counties) %>%
+  left_join(table_data_not_counties) %>%
+  rename(County = value) %>%
+  filter(measure %in% infrastructure_measures_2020)
+
+obtn_data_by_measure %>%
+  filter(measure == "VMT per capita") %>%
+  filter(year == 2020) %>%
+  arrange(desc(value)) %>%
+  mutate(value = comma(value, 1)) %>%
+  select(geography, value) %>%
+  write_xlsx(here("data-raw", "table-data", "table-data-vmt-per-capita.xlsx"))
+
+
+# Kindergarten Readiness --------------------------------------------------
+
+obtn_data_by_measure %>%
+  filter(measure == "Letter Sounds") %>%
+  filter(year == 2020) %>%
+  arrange(desc(value)) %>%
+  mutate(value = round_half_up(value, 1)) %>%
+  mutate(value = number(value, 0.1)) %>%
+  select(geography, value) %>%
+  set_names("county", "value") %>%
+  write_xlsx(here("data-raw", "table-data", "letter-sounds.xlsx"))
 
 # Life Expectancy ---------------------------------------------------------
 
@@ -180,7 +262,7 @@ obtn_life_expectancy %>%
   filter(gender != "Total") %>%
   filter(year == 2020) %>%
   view()
-  filter(geography %in% obtn_oregon_counties) %>%
+filter(geography %in% obtn_oregon_counties) %>%
   select(-year) %>%
   mutate(value = number(value, 1)) %>%
   pivot_wider(id_cols = geography,
@@ -189,3 +271,37 @@ obtn_life_expectancy %>%
   select(geography, Women, Men) %>%
   rename(County = geography) %>%
   write_xlsx(here("data-raw", "table-data", "life-expectancy-by-gender.xlsx"))
+
+
+# Land Area ---------------------------------------------------------------
+
+obtn_total_land_area %>%
+  filter(year == 2020) %>%
+  mutate(land_area = round_half_up(land_area)) %>%
+  arrange(desc(land_area)) %>%
+  write_xlsx(here("data-raw", "table-data", "land-area.xlsx"))
+
+
+# Developed or Cultivated Land --------------------------------------------
+
+obtn_data_by_measure %>%
+  filter(year == 2020) %>%
+  filter(measure == "Developed or Cultivated Land") %>%
+  mutate(land_area = round_half_up(land_area)) %>%
+  arrange(desc(land_area)) %>%
+  write_xlsx(here("data-raw", "table-data", "land-area.xlsx"))
+
+
+# Tribes ------------------------------------------------------------------
+
+obtn_tribes %>%
+  filter(year == 2020) %>%
+  select(-year) %>%
+  mutate(tribe = str_to_upper(tribe)) %>%
+  mutate(geography = factor(geography, levels = obtn_oregon_counties)) %>%
+  complete(geography, tribe) %>%
+  rename(county = geography) %>%
+  pivot_wider(id_cols = county,
+              names_from = "tribe",
+              values_from = "present") %>%
+  write_xlsx(here("data-raw", "table-data", "tribe-icon-data.xlsx"))

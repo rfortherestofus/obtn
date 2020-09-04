@@ -65,4 +65,3 @@ obtn_plot_tribes_map <- function(obtn_year, tribe_to_plot, plot_width = 2, plot_
   obtn_save_plot(2020, tribe_to_plot_name, "Oregon", plot_width, plot_height)
 
 }
-

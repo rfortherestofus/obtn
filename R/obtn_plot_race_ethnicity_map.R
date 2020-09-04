@@ -40,7 +40,7 @@ obtn_plot_single_race_ethnicity_choropleth_map <- function(obtn_year, population
     ggplot2::coord_sf(datum = NA) +
     ggplot2::scale_fill_manual(values = c(
       "Y" = tfff_dark_green,
-      "N" = tfff_light_green
+      "N" = tfff_light_gray
     )) +
     ggplot2::theme_void() +
     ggplot2::theme(text = ggplot2::element_text(family = "Calibri",
@@ -84,9 +84,12 @@ obtn_plot_multiple_race_ethnicity_choropleth_maps <- function() {
 
 }
 
-
+# library(tidyverse)
+#
+# obtn_plot_multiple_race_ethnicity_choropleth_maps()
+#
 # ggsave(filename = "inst/plots/tests/race-ethnicity-above-state-avg.pdf",
 #        device = cairo_pdf,
 #        height = 8.5,
 #        width = 11)
-
+#

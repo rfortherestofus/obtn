@@ -54,7 +54,7 @@ obtn_make_all_plots <- function(obtn_year = 2020) {
 
 
   # State/Rural/Urban Race/Ethnicity Bar Charts -----------------------------
-  purrr::pwalk(list(obtn_year, c("Oregon", "Rural", "Urban"), 4.3684, 3.25), obtn_plot_race_ethnicity_bar_chart)
+  purrr::pwalk(list(obtn_year, c("Oregon", "Rural", "Urban"), 3.25, 2.43), obtn_plot_race_ethnicity_bar_chart)
 
 
   # Choropleth Maps ---------------------------------------------------------
@@ -84,6 +84,11 @@ obtn_make_all_plots <- function(obtn_year = 2020) {
 
   # Make all top industry maps
   purrr::pwalk(list(obtn_year, obtn_industries), obtn_plot_top_employment_industries)
+
+
+  # Beep --------------------------------------------------------------------
+
+  beepr::beep()
 
 }
 

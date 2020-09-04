@@ -10,6 +10,7 @@ library(janitor)
 library(sf)
 library(scales)
 library(tigris)
+library(tidycensus)
 library(opencage)
 
 load_all()
@@ -79,7 +80,6 @@ dk_import_alice_data <- function(data_year) {
     drop_na(geography)
 }
 
-
 obtn_alice_data <- dk_import_alice_data(2020)
 
 
@@ -136,14 +136,14 @@ use_data(obtn_economic_mobility,
 
 # * Race/Ethnicity ----------------------------------------------------------
 
-race_ethnicity_order <- rev(c("White",
-                              "Latino",
-                              "African American",
+race_ethnicity_order <- rev(c("American Indian/Alaska Native",
                               "Asian",
-                              "Am Indian/Alaska Native",
+                              "Black/African American",
+                              "Hispanic/Latino",
                               "Native Hawaiian/Pacific Islander",
-                              "Multiracial",
-                              "Other Race"))
+                              "Some other race",
+                              "Two or more races",
+                              "White"))
 
 dk_import_race_ethnicity_data <- function(data_year) {
   read_excel(here("data-raw", str_glue("{data_year}-obtn-by-county.xlsx")),
@@ -155,13 +155,13 @@ dk_import_race_ethnicity_data <- function(data_year) {
     gather("population", "pct", -geography) %>%
     mutate(population = case_when(
       population == "percentage_of_population_white_non_latino" ~ "White",
-      population == "percentage_of_population_black_non_latino" ~ "African American",
+      population == "percentage_of_population_black_non_latino" ~ "Black/African American",
       population == "percentage_of_population_asian_non_latino" ~ "Asian",
-      population == "percentage_of_population_american_indian_or_alaska_native_non_latino" ~ "Am Indian/Alaska Native",
+      population == "percentage_of_population_american_indian_or_alaska_native_non_latino" ~ "American Indian/Alaska Native",
       population == "percentage_of_population_native_hawaiian_pacific_islander_non_latino" ~ "Native Hawaiian/Pacific Islander",
-      population == "percentage_of_population_multi_racial_non_latino" ~ "Multiracial",
-      population == "percentage_of_population_other_race_non_latino" ~ "Other Race",
-      population == "percentage_of_population_latino" ~ "Latino"
+      population == "percentage_of_population_multi_racial_non_latino" ~ "Two or more races",
+      population == "percentage_of_population_other_race_non_latino" ~ "Some other race",
+      population == "percentage_of_population_latino" ~ "Hispanic/Latino",
     )) %>%
     rename("value" = "pct") %>%
     mutate(year = data_year)
@@ -304,6 +304,32 @@ use_data(obtn_rural_population,
          overwrite = TRUE)
 
 
+
+# * Population by Census Tract ----------------------------------------------
+
+oregon_census_tract_size <- tracts(state = "OR") %>%
+  clean_names() %>%
+  # ALAND and AWATER are square meters
+  # https://stackoverflow.com/questions/31246602/shape-area-and-aland-awater-in-tiger-census-data
+  mutate(square_meters = aland + awater) %>%
+  # Convert to square miles
+  # https://www.unitconverters.net/area/square-meter-to-square-mile.htm
+  mutate(square_miles = square_meters * 3.8610215854245E-7) %>%
+  select(geoid, square_miles) %>%
+  st_drop_geometry()
+
+obtn_population_by_census_tract <- get_acs(state = "OR",
+                                           variables = "B01003_001",
+                                           geography = "tract") %>%
+  clean_names() %>%
+  right_join(oregon_census_tract_size, by = "geoid") %>%
+  rename(population = estimate) %>%
+  mutate(population_per_square_mile = population / square_miles) %>%
+  select(geoid, population_per_square_mile)
+
+use_data(obtn_population_by_census_tract,
+         overwrite = TRUE)
+
 # * Net Migration --------------------------------------------------------
 
 dk_import_net_migration_data <- function(data_year) {
@@ -381,7 +407,11 @@ dk_import_largest_community_data <- function(data_year) {
              sheet = "Largest Community") %>%
     clean_names() %>%
     rename(community = largest_community) %>%
-    oc_forward_df(placename = str_glue("{community}, Oregon")) %>%
+    mutate(community = case_when(
+      community == "Prinville" ~ "Prineville",
+      TRUE ~ community
+    )) %>%
+    oc_forward_df(placename = str_glue("{community}, {geography} County, Oregon")) %>%
     mutate(year = data_year)
 }
 
@@ -466,7 +496,7 @@ dk_import_measure_data <- function(data_year) {
 
   infrastructure_measures_2020 <- c("Broadband Access",
                                     "Transit Service",
-                                    "Vehicle Miles Traveled",
+                                    "VMT per capita",
                                     "Childcare Availability",
                                     "Mobile Homes")
 
@@ -477,7 +507,9 @@ dk_import_measure_data <- function(data_year) {
                       "Land Area",
                       "Public Lands",
                       "Life Expectancy - Overall",
-                      "Above ALICE HH")
+                      "Above ALICE HH",
+                      "Vehicle Miles Traveled",
+                      "Developed or Cultivated Land")
 
 
   # Create function to get one sheet of data
@@ -559,7 +591,7 @@ dk_import_measure_data <- function(data_year) {
       measure %in% education_measures_2020 & year == 2020 ~ "Education",
       measure %in% economy_measures_2020 & year == 2020 ~ "Economy",
       measure %in% health_measures_2020 & year == 2020 ~ "Health",
-      measure %in% infrastructure_measures_2020 & year == 2020 ~ "Infrastructure",
+      measure %in% infrastructure_measures_2020 & year == 2020 ~ "Infrastructure"
     )) %>%
     # If a measure doesn't have a category it's because we're not making a choropleth with it so drop it
     drop_na(category)
@@ -629,6 +661,14 @@ obtn_boundaries_oregon_counties <- counties(cb = TRUE, class="sf") %>%
 use_data(obtn_boundaries_oregon_counties,
          overwrite = TRUE)
 
+
+obtn_boundaries_oregon_census_tracts <- tracts(state = "OR",
+                                               cb = TRUE) %>%
+  clean_names() %>%
+  select(geoid)
+
+use_data(obtn_boundaries_oregon_census_tracts,
+         overwrite = TRUE)
 
 
 # COLORS ------------------------------------------------------------------

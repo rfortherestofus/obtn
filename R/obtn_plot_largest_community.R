@@ -31,6 +31,8 @@ obtn_plot_largest_community <- function(obtn_year, plot_width = 5, plot_height =
     sf::st_as_sf(coords = c("oc_lng", "oc_lat")) %>%
     sf::st_set_crs(4269)
 
+  # return(obtn_largest_community_sf)
+
   ggplot2::ggplot() +
     ggplot2::geom_sf(data = obtn_boundaries_oregon_counties,
                      fill = tfff_light_green,
