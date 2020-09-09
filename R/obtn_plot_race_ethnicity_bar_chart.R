@@ -46,7 +46,11 @@ obtn_plot_race_ethnicity_bar_chart <- function(obtn_year,
   if (geography_to_plot %in% obtn_oregon_counties) {
     ggplot2::ggplot(obtn_race_ethnicity_filtered,
                     ggplot2::aes(x = population, y = value)) +
-      ggplot2::geom_bar(stat = "identity", fill = tfff_dark_green) +
+      ggplot2::geom_bar(ggplot2::aes(x = population, y = 1),
+                        stat = "identity", fill = tfff_light_gray,
+                        width = 0.5) +
+      ggplot2::geom_bar(stat = "identity", fill = tfff_dark_green,
+                        width = 0.5) +
       ggplot2::geom_text(data = dplyr::filter(obtn_race_ethnicity_filtered, population != "White"),
                          ggplot2::aes(population, value + .025,
                                       label = stringr::str_glue("{population}: {pct_formatted}")),
@@ -62,7 +66,8 @@ obtn_plot_race_ethnicity_bar_chart <- function(obtn_year,
                          color = "white",
                          family = "Calibri") +
       ggplot2::scale_x_discrete(expand = c(0, 0)) +
-      ggplot2::scale_y_continuous(expand = c(0, 0)) +
+      ggplot2::scale_y_continuous(expand = c(0, 0),
+                                  limits = c(0, 1)) +
       ggplot2::theme_void() +
       ggplot2::coord_flip()
 
@@ -91,7 +96,7 @@ obtn_plot_race_ethnicity_bar_chart <- function(obtn_year,
       ggplot2::coord_flip()
   }
 
-obtn_save_plot(obtn_year, "Race Ethnicity Bar Chart", geography_to_plot, plot_width, plot_height)
+  obtn_save_plot(obtn_year, "Race Ethnicity Bar Chart", geography_to_plot, plot_width, plot_height)
 
 }
 
