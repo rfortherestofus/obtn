@@ -58,14 +58,14 @@ obtn_plot_race_ethnicity_bar_chart <- function(obtn_year,
                          ggplot2::aes(population, value + .025,
                                       label = stringr::str_glue("{population}: {pct_formatted}")),
                          hjust = 0,
-                         size = 2.75,
+                         size = 2.75 * 1.5,
                          color = tfff_dark_gray,
                          family = "Calibri") +
       ggplot2::geom_text(data = dplyr::filter(obtn_race_ethnicity_filtered, population == "White"),
                          ggplot2::aes(population, value - .025,
                                       label = stringr::str_glue("{population}: {pct_formatted}")),
                          hjust = 1,
-                         size = 2.75,
+                         size = 2.75 * 1.5,
                          color = "white",
                          family = "Calibri") +
       ggplot2::scale_x_discrete(expand = c(0, 0)) +
@@ -78,6 +78,3 @@ obtn_plot_race_ethnicity_bar_chart <- function(obtn_year,
 obtn_save_plot(obtn_year, "Race Ethnicity Bar Chart", geography_to_plot, plot_width, plot_height)
 
 }
-
-
-obtn_plot_race_ethnicity_bar_chart(2020, "Clatsop")
