@@ -6,7 +6,7 @@
 \usage{
 obtn_plot_race_ethnicity_bar_chart(
   obtn_year,
-  county_to_plot,
+  geography_to_plot,
   plot_width = 3.1,
   plot_height = 2.1
 )

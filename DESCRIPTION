@@ -4,12 +4,11 @@ Title: Oregon by the Numbers
 Version: 0.1.0
 Author: Who wrote it
 Maintainer: David Keyes <david@rfortherestofus.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: Code to generate all figures for Oregon by the Numbers.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 Imports: 
     magrittr,
     sf,

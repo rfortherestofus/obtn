@@ -42,7 +42,39 @@ obtn_plot_race_ethnicity_bar_chart <- function(obtn_year,
       value > 0.3 ~ "white",
       TRUE ~ tfff_dark_gray
     ))
+  if (geography_to_plot %in% obtn_oregon_counties) {
+    ggplot2::ggplot(obtn_race_ethnicity_filtered,
+                    ggplot2::aes(x = population, y = value)) +
+      ggplot2::geom_bar(ggplot2::aes(x = population, y = 1),
+                        width = 0.75,
+                        size = 0.25,
+                        stat = "identity",
+                        fill = "white",
+                        linetype = "dotted",
+                        color = tfff_light_green) +
+      ggplot2::geom_bar(stat = "identity", fill = tfff_dark_green,
+                        width = 0.75) +
+      ggplot2::geom_text(data = dplyr::filter(obtn_race_ethnicity_filtered, population != "White"),
+                         ggplot2::aes(population, value + .025,
+                                      label = stringr::str_glue("{population}: {pct_formatted}")),
+                         hjust = 0,
+                         size = 3.5,
+                         color = tfff_dark_gray,
+                         family = "Calibri") +
+      ggplot2::geom_text(data = dplyr::filter(obtn_race_ethnicity_filtered, population == "White"),
+                         ggplot2::aes(population, value - .025,
+                                      label = stringr::str_glue("{population}: {pct_formatted}")),
+                         hjust = 1,
+                         size = 3.5,
+                         color = "white",
+                         family = "Calibri") +
+      ggplot2::scale_x_discrete(expand = c(0, 0)) +
+      ggplot2::scale_y_continuous(expand = c(0, 0),
+                                  limits = c(0, 1)) +
+      ggplot2::theme_void() +
+      ggplot2::coord_flip()
 
+  } else {
     ggplot2::ggplot(obtn_race_ethnicity_filtered,
                     ggplot2::aes(x = population, y = value)) +
       ggplot2::geom_bar(ggplot2::aes(x = population, y = 1),
@@ -73,6 +105,7 @@ obtn_plot_race_ethnicity_bar_chart <- function(obtn_year,
                                   limits = c(0, 1)) +
       ggplot2::theme_void() +
       ggplot2::coord_flip()
+    }
 
 
 obtn_save_plot(obtn_year, "Race Ethnicity Bar Chart", geography_to_plot, plot_width, plot_height)
